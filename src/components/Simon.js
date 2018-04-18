@@ -21,8 +21,9 @@ class Simon extends React.Component {
     yellowActive: false,
     blueActive: false,
     originalRandomLights: [],
-    currentLightsSeries: [],
-    lightsPressed: []
+    patternActive: true,
+    patternStreak: 1,
+    userPattern: []
   };
 
   handleClick = ev => {
@@ -37,6 +38,7 @@ class Simon extends React.Component {
   };
 
   pressButton = button => {
+    let { patternActive } = this.state;
     this.playAudio(button);
     switch (button) {
       case 'green':
@@ -45,8 +47,14 @@ class Simon extends React.Component {
             greenActive: true
           },
           () => {
+            if (!patternActive) {
+              this.checkPattern(button);
+            }
             setTimeout(() => {
-              this.setState({ greenActive: false });
+              this.setState({
+                greenActive: false,
+                patternActive: !patternActive ? true : false
+              });
             }, 1000);
           }
         );
@@ -58,8 +66,14 @@ class Simon extends React.Component {
             redActive: true
           },
           () => {
+            if (!patternActive) {
+              this.checkPattern(button);
+            }
             setTimeout(() => {
-              this.setState({ redActive: false });
+              this.setState({
+                redActive: false,
+                patternActive: !patternActive ? true : false
+              });
             }, 1000);
           }
         );
@@ -71,8 +85,14 @@ class Simon extends React.Component {
             yellowActive: true
           },
           () => {
+            if (!patternActive) {
+              this.checkPattern(button);
+            }
             setTimeout(() => {
-              this.setState({ yellowActive: false });
+              this.setState({
+                yellowActive: false,
+                patternActive: !patternActive ? true : false
+              });
             }, 1000);
           }
         );
@@ -84,8 +104,14 @@ class Simon extends React.Component {
             blueActive: true
           },
           () => {
+            if (!patternActive) {
+              this.checkPattern(button);
+            }
             setTimeout(() => {
-              this.setState({ blueActive: false });
+              this.setState({
+                blueActive: false,
+                patternActive: !patternActive ? true : false
+              });
             }, 1000);
           }
         );
@@ -121,12 +147,43 @@ class Simon extends React.Component {
     // when isOn activates, then as pattern goes, add elements of originalPatter
     // onto pattern tracker array. Remove as user presses pattern??
     let arr = this.state.originalRandomLights;
-    for (let i = 0; i < arr.length; i++) {
+    let patternStreak = this.state.patternStreak;
+    for (let i = 0; i < patternStreak; i++) {
       setTimeout(() => {
         console.log('lighting up ', arr[i]);
         this.pressButton(arr[i]);
       }, 2000 * i);
     }
+  };
+  // check pattern up to patternStreak length with original
+  // if it's equal, set userPattern, increase streak, return true
+  checkPattern = newButtonPress => {
+    console.log('checkPattern 1');
+    let { userPattern, originalRandomLights, patternStreak } = this.state;
+    console.log('userPattern: ', userPattern);
+    userPattern.push(newButtonPress);
+    let flag = true;
+    for (let i = 0; i < patternStreak; i++) {
+      if (originalRandomLights[i] !== userPattern[i]) {
+        console.log('checkPattern 2: this is false');
+        flag = false;
+      }
+    }
+    if (flag) {
+      console.log('checkPattern 3: all were true');
+      this.setState(
+        {
+          userPattern: userPattern,
+          patternStreak: patternStreak + 1
+        },
+        () => {
+          this.startPattern();
+        }
+      );
+    } else {
+      return false;
+      this.startPattern(); // TODO fix pattern comparison, and something
+    } // isn't working right with audio, load vs play check error message
   };
 
   render() {
