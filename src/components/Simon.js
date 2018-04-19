@@ -34,7 +34,14 @@ class Simon extends React.Component {
   playAudio = color => {
     let audio = document.getElementById(`${color}Audio`);
     audio.load();
-    audio.play();
+    audio
+      .play()
+      .then(() => {
+        console.log('playing');
+      })
+      .catch(e => {
+        console.log('error: ', e);
+      });
   };
 
   pressButton = button => {
@@ -53,7 +60,7 @@ class Simon extends React.Component {
             setTimeout(() => {
               this.setState({
                 greenActive: false,
-                patternActive: !patternActive ? true : false
+                patternActive: !patternActive
               });
             }, 1000);
           }
@@ -72,7 +79,7 @@ class Simon extends React.Component {
             setTimeout(() => {
               this.setState({
                 redActive: false,
-                patternActive: !patternActive ? true : false
+                patternActive: !patternActive
               });
             }, 1000);
           }
@@ -91,7 +98,7 @@ class Simon extends React.Component {
             setTimeout(() => {
               this.setState({
                 yellowActive: false,
-                patternActive: !patternActive ? true : false
+                patternActive: !patternActive
               });
             }, 1000);
           }
@@ -110,7 +117,7 @@ class Simon extends React.Component {
             setTimeout(() => {
               this.setState({
                 blueActive: false,
-                patternActive: !patternActive ? true : false
+                patternActive: !patternActive
               });
             }, 1000);
           }
@@ -150,13 +157,15 @@ class Simon extends React.Component {
     let patternStreak = this.state.patternStreak;
     for (let i = 0; i < patternStreak; i++) {
       setTimeout(() => {
-        console.log('lighting up ', arr[i]);
+        console.log('lighting up ', arr[i], '@: ', i);
         this.pressButton(arr[i]);
       }, 2000 * i);
     }
   };
   // check pattern up to patternStreak length with original
   // if it's equal, set userPattern, increase streak, return true
+  // TODO FIX: It is checking pattern every time the button is pressed
+  // I feel this is connected to the bug.
   checkPattern = newButtonPress => {
     console.log('checkPattern 1');
     let { userPattern, originalRandomLights, patternStreak } = this.state;
@@ -165,6 +174,14 @@ class Simon extends React.Component {
     let flag = true;
     for (let i = 0; i < patternStreak; i++) {
       if (originalRandomLights[i] !== userPattern[i]) {
+        console.log(
+          'originalRandomLights[i]: ',
+          originalRandomLights[i],
+          '@: ',
+          i
+        );
+        console.log('full originalRandomLights: ', originalRandomLights);
+        console.log('userPattern[i]: ', userPattern[i]);
         console.log('checkPattern 2: this is false');
         flag = false;
       }
@@ -173,7 +190,7 @@ class Simon extends React.Component {
       console.log('checkPattern 3: all were true');
       this.setState(
         {
-          userPattern: userPattern,
+          userPattern: [],
           patternStreak: patternStreak + 1
         },
         () => {
