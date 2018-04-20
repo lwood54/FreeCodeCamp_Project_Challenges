@@ -20,9 +20,9 @@ class Simon extends React.Component {
     redActive: false,
     yellowActive: false,
     blueActive: false,
-    originalRandomLights: [],
+    originalPattern: [],
     patternActive: true,
-    patternStreak: 1,
+    patternStreak: 5,
     userPattern: []
   };
 
@@ -34,10 +34,11 @@ class Simon extends React.Component {
   playAudio = color => {
     let audio = document.getElementById(`${color}Audio`);
     audio.load();
+    console.log(audio);
     audio
       .play()
       .then(() => {
-        console.log('playing');
+        console.log('@playAuido: playing');
       })
       .catch(e => {
         console.log('error: ', e);
@@ -45,7 +46,7 @@ class Simon extends React.Component {
   };
 
   pressButton = button => {
-    let { patternActive } = this.state;
+    let { patternActive, userPattern, patternStreak } = this.state;
     this.playAudio(button);
     switch (button) {
       case 'green':
@@ -54,15 +55,12 @@ class Simon extends React.Component {
             greenActive: true
           },
           () => {
-            if (!patternActive) {
-              this.checkPattern(button);
-            }
             setTimeout(() => {
+              // setTimeout for color turn off delay
               this.setState({
-                greenActive: false,
-                patternActive: !patternActive
+                greenActive: false
               });
-            }, 1000);
+            }, 250);
           }
         );
         break;
@@ -73,15 +71,12 @@ class Simon extends React.Component {
             redActive: true
           },
           () => {
-            if (!patternActive) {
-              this.checkPattern(button);
-            }
             setTimeout(() => {
+              // setTimeout for color turn off delay
               this.setState({
-                redActive: false,
-                patternActive: !patternActive
+                redActive: false
               });
-            }, 1000);
+            }, 250);
           }
         );
         break;
@@ -92,34 +87,29 @@ class Simon extends React.Component {
             yellowActive: true
           },
           () => {
-            if (!patternActive) {
-              this.checkPattern(button);
-            }
             setTimeout(() => {
+              // setTimeout for color turn off delay
               this.setState({
-                yellowActive: false,
-                patternActive: !patternActive
+                yellowActive: false
               });
-            }, 1000);
+            }, 250);
           }
         );
         break;
 
-      case 'blue':
+      default:
+        //(blue)
         this.setState(
           {
             blueActive: true
           },
           () => {
-            if (!patternActive) {
-              this.checkPattern(button);
-            }
             setTimeout(() => {
+              // setTimeout for color turn off delay
               this.setState({
-                blueActive: false,
-                patternActive: !patternActive
+                blueActive: false
               });
-            }, 1000);
+            }, 250);
           }
         );
         break;
@@ -143,64 +133,62 @@ class Simon extends React.Component {
           tempArray.push('blue');
         }
       }
+      console.log('@turnGameOn: ', tempArray);
       this.setState({
         isOn: true,
-        originalRandomLights: tempArray
+        originalPattern: tempArray
       });
     }
   };
-
+  //// NOTE NOTE NOTE:::: the problem is that it checks the entire array up to the
+  // patternStreak, which after you reset the userPattern to run it again, the check
+  // after hitting the first button on streak 2 will result in not matching because
+  // userPattern does not have a value in any other index than 0 yet, but patternStreak
+  // will check it up the current pattern, which if greater than 1, will result in no match!
+  // FIX THIS!!!
   startPattern = () => {
-    // when isOn activates, then as pattern goes, add elements of originalPatter
-    // onto pattern tracker array. Remove as user presses pattern??
-    let arr = this.state.originalRandomLights;
-    let patternStreak = this.state.patternStreak;
+    let { originalPattern, patternStreak } = this.state;
+    let originalBuildUp = originalPattern.slice(0, patternStreak);
+    console.log('@startPattern - originalBuildUp: ', originalBuildUp);
+    // CREATE A WAY TO PRESS A BUTTON ON TIME DELAY, setTimeout still seems
+    // the most promising, but when using a for loop, it want's to apply all
+    // timeouts at once, which I briefly solved by multiplying the timeout by the index value
+    // but then that seems to prevent the sequence from running.
     for (let i = 0; i < patternStreak; i++) {
       setTimeout(() => {
-        console.log('lighting up ', arr[i], '@: ', i);
-        this.pressButton(arr[i]);
-      }, 2000 * i);
+        this.pressButton(originalBuildUp[i]);
+      }, 1500 * i);
     }
   };
-  // check pattern up to patternStreak length with original
-  // if it's equal, set userPattern, increase streak, return true
-  // TODO FIX: It is checking pattern every time the button is pressed
-  // I feel this is connected to the bug.
-  checkPattern = newButtonPress => {
-    console.log('checkPattern 1');
-    let { userPattern, originalRandomLights, patternStreak } = this.state;
-    console.log('userPattern: ', userPattern);
-    userPattern.push(newButtonPress);
-    let flag = true;
+
+  checkPattern = () => {
+    let { userPattern, originalPattern, patternStreak } = this.state;
+    let originalBuildUp = originalPattern.slice(0, patternStreak);
+    let match = true;
     for (let i = 0; i < patternStreak; i++) {
-      if (originalRandomLights[i] !== userPattern[i]) {
-        console.log(
-          'originalRandomLights[i]: ',
-          originalRandomLights[i],
-          '@: ',
-          i
-        );
-        console.log('full originalRandomLights: ', originalRandomLights);
-        console.log('userPattern[i]: ', userPattern[i]);
-        console.log('checkPattern 2: this is false');
-        flag = false;
+      if (userPattern[i] !== originalBuildUp[i]) {
+        match = false;
       }
     }
-    if (flag) {
-      console.log('checkPattern 3: all were true');
+    if (match) {
+      console.log(
+        '@checkPattern - match - userPattern ---> originalBuildUp: ',
+        userPattern,
+        '--->',
+        originalBuildUp
+      );
       this.setState(
         {
-          userPattern: [],
-          patternStreak: patternStreak + 1
+          patternStreak: patternStreak + 1,
+          userPattern: []
         },
         () => {
-          this.startPattern();
+          setTimeout(() => {
+            this.startPattern();
+          }, 1000);
         }
       );
-    } else {
-      return false;
-      this.startPattern(); // TODO fix pattern comparison, and something
-    } // isn't working right with audio, load vs play check error message
+    }
   };
 
   render() {
@@ -258,7 +246,7 @@ class Simon extends React.Component {
             src="https://s3.amazonaws.com/freecodecamp/simonSound4.mp3"
           />
           <button className="btn" onClick={this.turnGameOn}>
-            {this.state.isOn ? 'On' : 'Off'}
+            {this.state.isOn ? 'Turn Off' : 'Turn On'}
           </button>
           <button className="btn" onClick={this.startPattern}>
             Start
