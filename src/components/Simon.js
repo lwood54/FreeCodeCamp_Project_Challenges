@@ -22,8 +22,11 @@ class Simon extends React.Component {
     blueActive: false,
     originalPattern: [],
     patternActive: true,
-    patternStreak: 5,
-    userPattern: []
+    patternStreak: 1,
+    userPattern: [],
+    strictMode: false,
+    gameWon: false,
+    gameLost: false
   };
 
   handleClick = ev => {
@@ -47,14 +50,30 @@ class Simon extends React.Component {
 
   pressButton = button => {
     let { patternActive, userPattern, patternStreak } = this.state;
+    // NOTE userPattern is saved as false when it was empty array
+    // so I had to check if it's false and define its first entry,
+    // then I could add to the array.
     this.playAudio(button);
+    if (!patternActive) {
+      console.log('running? ', 'userPattern: ', userPattern);
+      if (!userPattern) {
+        userPattern = [button];
+      } else {
+        userPattern.push(button);
+      }
+    }
     switch (button) {
       case 'green':
         this.setState(
           {
-            greenActive: true
+            greenActive: true,
+            userPattern: !patternActive && userPattern
           },
           () => {
+            if (!patternActive) {
+              console.log('is checkPattern running?');
+              this.checkPattern();
+            }
             setTimeout(() => {
               // setTimeout for color turn off delay
               this.setState({
@@ -68,9 +87,14 @@ class Simon extends React.Component {
       case 'red':
         this.setState(
           {
-            redActive: true
+            redActive: true,
+            userPattern: !patternActive && userPattern
           },
           () => {
+            if (!patternActive) {
+              console.log('is checkPattern running?');
+              this.checkPattern();
+            }
             setTimeout(() => {
               // setTimeout for color turn off delay
               this.setState({
@@ -84,9 +108,14 @@ class Simon extends React.Component {
       case 'yellow':
         this.setState(
           {
-            yellowActive: true
+            yellowActive: true,
+            userPattern: !patternActive && userPattern
           },
           () => {
+            if (!patternActive) {
+              console.log('is checkPattern running?');
+              this.checkPattern();
+            }
             setTimeout(() => {
               // setTimeout for color turn off delay
               this.setState({
@@ -101,9 +130,14 @@ class Simon extends React.Component {
         //(blue)
         this.setState(
           {
-            blueActive: true
+            blueActive: true,
+            userPattern: !patternActive && userPattern
           },
           () => {
+            if (!patternActive) {
+              console.log('is checkPattern running?');
+              this.checkPattern();
+            }
             setTimeout(() => {
               // setTimeout for color turn off delay
               this.setState({
@@ -150,45 +184,159 @@ class Simon extends React.Component {
     let { originalPattern, patternStreak } = this.state;
     let originalBuildUp = originalPattern.slice(0, patternStreak);
     console.log('@startPattern - originalBuildUp: ', originalBuildUp);
-    // CREATE A WAY TO PRESS A BUTTON ON TIME DELAY, setTimeout still seems
-    // the most promising, but when using a for loop, it want's to apply all
-    // timeouts at once, which I briefly solved by multiplying the timeout by the index value
-    // but then that seems to prevent the sequence from running.
+    let counter = patternStreak;
     for (let i = 0; i < patternStreak; i++) {
       setTimeout(() => {
         this.pressButton(originalBuildUp[i]);
+        counter--;
+        if (counter === 0) {
+          this.setState({
+            patternActive: false
+          });
+        }
       }, 1500 * i);
     }
   };
 
   checkPattern = () => {
-    let { userPattern, originalPattern, patternStreak } = this.state;
+    let {
+      userPattern,
+      originalPattern,
+      patternStreak,
+      strictMode
+    } = this.state;
     let originalBuildUp = originalPattern.slice(0, patternStreak);
-    let match = true;
-    for (let i = 0; i < patternStreak; i++) {
-      if (userPattern[i] !== originalBuildUp[i]) {
-        match = false;
-      }
-    }
-    if (match) {
+    let lastSpot = userPattern.length - 1;
+    let match;
+    if (userPattern[lastSpot] === originalPattern[lastSpot]) {
       console.log(
-        '@checkPattern - match - userPattern ---> originalBuildUp: ',
-        userPattern,
-        '--->',
-        originalBuildUp
+        'user: ',
+        userPattern[lastSpot],
+        'vs ',
+        'pattern: ',
+        originalPattern[lastSpot]
       );
-      this.setState(
-        {
-          patternStreak: patternStreak + 1,
-          userPattern: []
-        },
-        () => {
-          setTimeout(() => {
-            this.startPattern();
-          }, 1000);
-        }
-      );
+      console.log('match true');
+      match = true;
+    } else {
+      console.log('match false');
+      match = false;
     }
+    // for (let i = 0; i < patternStreak; i++) {
+    //   if (userPattern[i] !== originalBuildUp[i]) {
+    //     match = false;
+    //   }
+    // }
+    if (match) {
+      if (userPattern.length === originalPattern.length) {
+        this.gameWon();
+      } else {
+        console.log(
+          '@checkPattern - match - userPattern ---> originalBuildUp: ',
+          userPattern,
+          '--->',
+          originalBuildUp
+        );
+        if (userPattern.length === patternStreak) {
+          this.setState(
+            {
+              patternStreak: patternStreak + 1,
+              userPattern: [],
+              patternActive: true
+            },
+            () => {
+              setTimeout(() => {
+                this.startPattern();
+              }, 1000);
+            }
+          );
+        }
+      }
+    } else {
+      this.gameLost();
+    }
+  };
+
+  handleStrict = () => {
+    let { strictMode } = this.state;
+    this.setState({ strictMode: !strictMode });
+  };
+
+  gameWon = () => {
+    for (let i = 1; i <= 5; i++) {
+      setTimeout(() => {
+        this.playAudio('green');
+      }, 250 * i);
+    }
+    this.setState(
+      {
+        greenActive: true,
+        gameWon: true
+      },
+      () => {
+        setTimeout(() => {
+          this.resetGame();
+        }, 2500);
+      }
+    );
+  };
+
+  gameLost = () => {
+    this.setState(
+      {
+        patternActive: true,
+        userPattern: [],
+        greenActive: true,
+        redActive: true,
+        yellowActive: true,
+        blueActive: true,
+        gameLost: true
+      },
+      () => {
+        setTimeout(() => {
+          this.setState(
+            {
+              greenActive: false,
+              redActive: false,
+              yellowActive: false,
+              blueActive: false,
+              gameLost: false
+            },
+            () => {
+              if (this.state.strictMode) {
+                this.resetGame();
+              } else {
+                setTimeout(() => {
+                  this.startPattern();
+                }, 1500);
+              }
+            }
+          );
+        }, 2000);
+      }
+    );
+
+    let colors = ['green', 'red', 'yellow', 'blue'];
+    for (let i = 0; i < 4; i++) {
+      setTimeout(() => {
+        this.playAudio(colors[i]);
+      }, 250 + 250 * i);
+    }
+  };
+
+  resetGame = () => {
+    this.setState({
+      isOn: false,
+      greenActive: false,
+      redActive: false,
+      yellowActive: false,
+      blueActive: false,
+      originalPattern: [],
+      patternActive: true,
+      patternStreak: 1,
+      userPattern: [],
+      strictMode: false
+    });
   };
 
   render() {
@@ -248,9 +396,21 @@ class Simon extends React.Component {
           <button className="btn" onClick={this.turnGameOn}>
             {this.state.isOn ? 'Turn Off' : 'Turn On'}
           </button>
-          <button className="btn" onClick={this.startPattern}>
-            Start
-          </button>
+          {this.state.isOn && (
+            <div>
+              <button className="btn" onClick={this.startPattern}>
+                Start
+              </button>
+              <button className="btn" onClick={this.handleStrict}>
+                {this.state.strictMode
+                  ? 'turn off strict mode'
+                  : 'turn on strict mode'}
+              </button>
+              <h3>{this.state.patternStreak - 1}</h3>
+              {this.state.gameWon && <h2>You WON!!!</h2>}
+              {this.state.gameLost && <h2>You lost...</h2>}
+            </div>
+          )}
         </div>
       </div>
     );
