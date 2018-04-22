@@ -1,21 +1,24 @@
 .btnCont {
-  padding: 50px;
-  height: 530px;
-  width: 530px;
+  position: absolute;
+  padding: 20px;
+  margin: auto;
+  top: 20px;
+  height: 455px;
+  width: 455px;
   background-color: #212121;
   border-radius: 275px;
 }
 
 .gameBtn {
-  height: 175px;
-  width: 175px;
+  height: 200px;
+  width: 200px;
   background-color: red;
-  margin: 20px;
 }
 
 .gameCont {
-  margin-top: 20px;
-  width: 530px;
+  position: relative;
+  top: 20px;
+  width: 520px;
 }
 
 .strictDiv {
@@ -25,15 +28,24 @@
 }
 
 .strict {
-  height: 30px;
-  width: 30px;
-  border-radius: 20px;
-  margin-top: 5px;
-  margin-right: 5px;
+  height: 15px;
+  width: 15px;
+  border-radius: 10px;
+  margin-top: 12px;
+  margin-right: 10px;
+  cursor: pointer;
 }
 
-.startBtn {
-  width: 100%;
+.innerFunctions {
+  width: 80%;
+  margin: auto;
+}
+
+.innerBtns {
+  border-radius: 5px;
+  padding: 0 5px 0 5px;
+  outline: none;
+  border: none;
 }
 
 .strictWord {
@@ -42,64 +54,88 @@
 
 .streak {
   margin: 0;
+  color: red;
+  font-size: 2em;
 }
 
 .inactiveStart {
   cursor: not-allowed;
 }
 
-.red {
+.gameBtn.red {
   border-radius: 10px;
   border-top-right-radius: 250px;
   box-shadow: -1px 1px 20px 1px black, -2px 2px 20px 2px #f44336;
 }
 
-.red:hover {
+.gameBtn.red:hover {
   box-shadow: -1px 1px 20px 1px black, -2px 2px 20px 2px #f44336;
 }
 
-.red:active {
+.gameBtn.red:active {
   box-shadow: none;
 }
 
-.green {
+.gameBtn.green {
   border-radius: 10px;
   border-top-left-radius: 250px;
   box-shadow: -1px 1px 20px 1px black, -2px 2px 20px 2px #66bb6a;
 }
 
-.green:hover {
+.gameBtn.green:hover {
   box-shadow: -1px 1px 20px 1px black, -2px 2px 20px 2px #66bb6a;
 }
 
-.green:active {
+.gameBtn.green:active {
   box-shadow: none;
 }
 
-.yellow {
+.gameBtn.yellow {
   border-radius: 10px;
+  margin-top: 15px;
   border-bottom-left-radius: 250px;
   box-shadow: -1px 1px 20px 1px black, -2px 2px 20px 2px #ffeb3b;
 }
 
-.yellow:hover {
+.gameBtn.yellow:hover {
   box-shadow: -1px 1px 20px 1px black, -2px 2px 20px 2px #ffeb3b;
 }
 
-.yellow:active {
+.gameBtn.yellow:active {
   box-shadow: none;
 }
 
-.blue {
+.gameBtn.blue {
   border-radius: 10px;
+  margin-top: 15px;
   border-bottom-right-radius: 250px;
   box-shadow: -1px 1px 20px 1px black, -2px 2px 20px 2px #1976d2;
 }
 
-.blue:hover {
+.gameBtn.blue:hover {
   box-shadow: -1px 1px 20px 1px black, -2px 2px 20px 2px #1976d2;
 }
 
-.blue:active {
+.gameBtn.blue:active {
   box-shadow: none;
+}
+
+.innerCircle {
+  position: absolute;
+  border-radius: 150px;
+  padding: 20px;
+  padding-top: 30px;
+  height: 250px;
+  width: 250px;
+  background-color: #212121;
+  top: 100px;
+  right: 100px;
+}
+
+.message {
+  position: absolute;
+  height: 100px;
+  width: 100%;
+  top: 475px;
+  right: 25px;
 }

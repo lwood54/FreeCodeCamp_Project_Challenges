@@ -349,7 +349,7 @@ class Simon extends React.Component {
     return (
       <div>
         <div className="gameCont center-align container">
-          <div className="btnCont">
+          <div className="btnCont center-align">
             <GameButton
               cName={
                 this.state.greenActive ? 'left green accent-3' : 'left green'
@@ -378,7 +378,7 @@ class Simon extends React.Component {
               cName={
                 this.state.yellowActive
                   ? 'left yellow accent-2'
-                  : 'left yellow darken-1'
+                  : 'left yellow darken-3'
               }
               value={'yellow'}
               handleClick={this.handleClick}
@@ -400,45 +400,50 @@ class Simon extends React.Component {
               id="blueAudio"
               src="https://s3.amazonaws.com/freecodecamp/simonSound4.mp3"
             />
-          </div>
 
-          <button
-            className="btn left light-green accent-2 grey-text text-darken-2"
-            onClick={this.turnGameOn}
-          >
-            {this.state.isOn ? 'Turn Off' : 'Turn On'}
-          </button>
-          {this.state.isOn && (
-            <div className="startBtn">
-              {!this.state.gameActive ? (
+            <div className="innerCircle valign-wrapper">
+              <div className="innerFunctions">
                 <button
-                  className="btn right light-green accent-2 grey-text text-darken-2"
-                  onClick={this.startPattern}
+                  className="innerBtns btn left light-green accent-2 grey-text text-darken-2"
+                  onClick={this.turnGameOn}
                 >
-                  Start
+                  {this.state.isOn ? 'Turn Off' : 'Turn On'}
                 </button>
-              ) : (
-                <button className="inactiveStart btn grey lighten-1 right">
-                  Start
-                </button>
-              )}
-              <div className="strictDiv left">
-                <button
-                  className={
-                    this.state.strictMode
-                      ? 'strict btn red left'
-                      : 'strict btn black left'
-                  }
-                  onClick={this.handleStrict}
-                />
-                <h6 className="left strictWord">strict</h6>
-                <h3 className="right streak">{this.state.patternStreak - 1}</h3>
+                {!this.state.gameActive && this.state.isOn ? (
+                  <button
+                    className="innerBtns btn right light-green accent-2 grey-text text-darken-2"
+                    onClick={this.startPattern}
+                  >
+                    Start
+                  </button>
+                ) : (
+                  <button className="innerBtns btn inactiveStart grey lighten-1 right">
+                    Start
+                  </button>
+                )}
+                <div className="strictDiv left">
+                  <button
+                    className={
+                      this.state.strictMode
+                        ? 'strict red left'
+                        : 'strict black left'
+                    }
+                    onClick={this.handleStrict}
+                  />
+                  <h6 className="left strictWord light-green-text text-accent-2">
+                    strict
+                  </h6>
+                  <h3 className="right streak">
+                    {this.state.patternStreak - 1}
+                  </h3>
+                </div>
               </div>
-
-              {this.state.gameWon && <h2>You WON!!!</h2>}
-              {this.state.gameLost && <h2>You lost...</h2>}
             </div>
-          )}
+          </div>
+          <div className="message center-align">
+            {this.state.gameWon && <h2>You WON!!!</h2>}
+            {this.state.gameLost && <h2>You lost...</h2>}
+          </div>
         </div>
       </div>
     );
