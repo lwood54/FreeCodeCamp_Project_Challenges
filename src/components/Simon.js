@@ -16,6 +16,7 @@ const GameButton = props => {
 class Simon extends React.Component {
   state = {
     isOn: false,
+    gameActive: false,
     greenActive: false,
     redActive: false,
     yellowActive: false,
@@ -37,7 +38,6 @@ class Simon extends React.Component {
   playAudio = color => {
     let audio = document.getElementById(`${color}Audio`);
     audio.load();
-    console.log(audio);
     audio
       .play()
       .then(() => {
@@ -55,7 +55,6 @@ class Simon extends React.Component {
     // then I could add to the array.
     this.playAudio(button);
     if (!patternActive) {
-      console.log('running? ', 'userPattern: ', userPattern);
       if (!userPattern) {
         userPattern = [button];
       } else {
@@ -71,7 +70,6 @@ class Simon extends React.Component {
           },
           () => {
             if (!patternActive) {
-              console.log('is checkPattern running?');
               this.checkPattern();
             }
             setTimeout(() => {
@@ -92,7 +90,6 @@ class Simon extends React.Component {
           },
           () => {
             if (!patternActive) {
-              console.log('is checkPattern running?');
               this.checkPattern();
             }
             setTimeout(() => {
@@ -113,7 +110,6 @@ class Simon extends React.Component {
           },
           () => {
             if (!patternActive) {
-              console.log('is checkPattern running?');
               this.checkPattern();
             }
             setTimeout(() => {
@@ -135,7 +131,6 @@ class Simon extends React.Component {
           },
           () => {
             if (!patternActive) {
-              console.log('is checkPattern running?');
               this.checkPattern();
             }
             setTimeout(() => {
@@ -151,8 +146,10 @@ class Simon extends React.Component {
   };
 
   turnGameOn = () => {
-    if (this.state.isOn) {
-      this.setState({ isOn: false });
+    if (this.state.isOn && !this.state.patternActive) {
+      this.resetGame();
+    } else if (this.state.isOn && this.state.patternStreak === 1) {
+      this.resetGame();
     } else {
       let tempArray = [];
       for (let i = 0; i < 20; i++) {
@@ -167,34 +164,62 @@ class Simon extends React.Component {
           tempArray.push('blue');
         }
       }
-      console.log('@turnGameOn: ', tempArray);
       this.setState({
         isOn: true,
         originalPattern: tempArray
       });
     }
   };
-  //// NOTE NOTE NOTE:::: the problem is that it checks the entire array up to the
-  // patternStreak, which after you reset the userPattern to run it again, the check
-  // after hitting the first button on streak 2 will result in not matching because
-  // userPattern does not have a value in any other index than 0 yet, but patternStreak
-  // will check it up the current pattern, which if greater than 1, will result in no match!
-  // FIX THIS!!!
+
   startPattern = () => {
-    let { originalPattern, patternStreak } = this.state;
+    let { originalPattern, patternStreak, gameActive } = this.state;
+    if (!gameActive) {
+      this.setState({ gameActive: true });
+    }
     let originalBuildUp = originalPattern.slice(0, patternStreak);
-    console.log('@startPattern - originalBuildUp: ', originalBuildUp);
     let counter = patternStreak;
     for (let i = 0; i < patternStreak; i++) {
-      setTimeout(() => {
-        this.pressButton(originalBuildUp[i]);
-        counter--;
-        if (counter === 0) {
-          this.setState({
-            patternActive: false
-          });
-        }
-      }, 1500 * i);
+      if (patternStreak >= 5 && patternStreak < 9) {
+        setTimeout(() => {
+          this.pressButton(originalBuildUp[i]);
+          counter--;
+          if (counter === 0) {
+            this.setState({
+              patternActive: false
+            });
+          }
+        }, 900 * i);
+      } else if (patternStreak >= 9 && patternStreak < 13) {
+        setTimeout(() => {
+          this.pressButton(originalBuildUp[i]);
+          counter--;
+          if (counter === 0) {
+            this.setState({
+              patternActive: false
+            });
+          }
+        }, 600 * i);
+      } else if (patternStreak >= 13) {
+        setTimeout(() => {
+          this.pressButton(originalBuildUp[i]);
+          counter--;
+          if (counter === 0) {
+            this.setState({
+              patternActive: false
+            });
+          }
+        }, 350 * i);
+      } else {
+        setTimeout(() => {
+          this.pressButton(originalBuildUp[i]);
+          counter--;
+          if (counter === 0) {
+            this.setState({
+              patternActive: false
+            });
+          }
+        }, 1500 * i);
+      }
     }
   };
 
@@ -209,34 +234,14 @@ class Simon extends React.Component {
     let lastSpot = userPattern.length - 1;
     let match;
     if (userPattern[lastSpot] === originalPattern[lastSpot]) {
-      console.log(
-        'user: ',
-        userPattern[lastSpot],
-        'vs ',
-        'pattern: ',
-        originalPattern[lastSpot]
-      );
-      console.log('match true');
       match = true;
     } else {
-      console.log('match false');
       match = false;
     }
-    // for (let i = 0; i < patternStreak; i++) {
-    //   if (userPattern[i] !== originalBuildUp[i]) {
-    //     match = false;
-    //   }
-    // }
     if (match) {
       if (userPattern.length === originalPattern.length) {
         this.gameWon();
       } else {
-        console.log(
-          '@checkPattern - match - userPattern ---> originalBuildUp: ',
-          userPattern,
-          '--->',
-          originalBuildUp
-        );
         if (userPattern.length === patternStreak) {
           this.setState(
             {
@@ -327,6 +332,7 @@ class Simon extends React.Component {
   resetGame = () => {
     this.setState({
       isOn: false,
+      gameActive: false,
       greenActive: false,
       redActive: false,
       yellowActive: false,
@@ -343,70 +349,92 @@ class Simon extends React.Component {
     return (
       <div>
         <div className="gameCont center-align container">
-          <GameButton
-            cName={
-              this.state.greenActive ? 'left green accent-3' : 'left green'
-            }
-            value={'green'}
-            handleClick={this.handleClick}
-          />
-          <audio
-            id="greenAudio"
-            src="https://s3.amazonaws.com/freecodecamp/simonSound1.mp3"
-          />
-          <GameButton
-            cName={
-              this.state.redActive
-                ? 'right deep orange darken-3'
-                : 'right red darken-1'
-            }
-            value={'red'}
-            handleClick={this.handleClick}
-          />
-          <audio
-            id="redAudio"
-            src="https://s3.amazonaws.com/freecodecamp/simonSound2.mp3"
-          />
-          <GameButton
-            cName={
-              this.state.yellowActive
-                ? 'left yellow accent-2'
-                : 'left yellow darken-1'
-            }
-            value={'yellow'}
-            handleClick={this.handleClick}
-          />
-          <audio
-            id="yellowAudio"
-            src="https://s3.amazonaws.com/freecodecamp/simonSound3.mp3"
-          />
-          <GameButton
-            cName={
-              this.state.blueActive
-                ? 'right blue light blue'
-                : 'right light blue darken-3'
-            }
-            value={'blue'}
-            handleClick={this.handleClick}
-          />
-          <audio
-            id="blueAudio"
-            src="https://s3.amazonaws.com/freecodecamp/simonSound4.mp3"
-          />
-          <button className="btn" onClick={this.turnGameOn}>
+          <div className="btnCont">
+            <GameButton
+              cName={
+                this.state.greenActive ? 'left green accent-3' : 'left green'
+              }
+              value={'green'}
+              handleClick={this.handleClick}
+            />
+            <audio
+              id="greenAudio"
+              src="https://s3.amazonaws.com/freecodecamp/simonSound1.mp3"
+            />
+            <GameButton
+              cName={
+                this.state.redActive
+                  ? 'right amber accent-3'
+                  : 'right red darken-1'
+              }
+              value={'red'}
+              handleClick={this.handleClick}
+            />
+            <audio
+              id="redAudio"
+              src="https://s3.amazonaws.com/freecodecamp/simonSound2.mp3"
+            />
+            <GameButton
+              cName={
+                this.state.yellowActive
+                  ? 'left yellow accent-2'
+                  : 'left yellow darken-1'
+              }
+              value={'yellow'}
+              handleClick={this.handleClick}
+            />
+            <audio
+              id="yellowAudio"
+              src="https://s3.amazonaws.com/freecodecamp/simonSound3.mp3"
+            />
+            <GameButton
+              cName={
+                this.state.blueActive
+                  ? 'right blue light blue'
+                  : 'right light blue darken-3'
+              }
+              value={'blue'}
+              handleClick={this.handleClick}
+            />
+            <audio
+              id="blueAudio"
+              src="https://s3.amazonaws.com/freecodecamp/simonSound4.mp3"
+            />
+          </div>
+
+          <button
+            className="btn left light-green accent-2 grey-text text-darken-2"
+            onClick={this.turnGameOn}
+          >
             {this.state.isOn ? 'Turn Off' : 'Turn On'}
           </button>
           {this.state.isOn && (
-            <div>
-              <button className="btn" onClick={this.startPattern}>
-                Start
-              </button>
-              <button className="btn" onClick={this.handleStrict}>
-                {this.state.strictMode
-                  ? 'turn off strict mode'
-                  : 'turn on strict mode'}
-              </button>
-              <h3>{this.state.patternStreak - 1}</h3>
+            <div className="startBtn">
+              {!this.state.gameActive ? (
+                <button
+                  className="btn right light-green accent-2 grey-text text-darken-2"
+                  onClick={this.startPattern}
+                >
+                  Start
+                </button>
+              ) : (
+                <button className="inactiveStart btn grey lighten-1 right">
+                  Start
+                </button>
+              )}
+              <div className="strictDiv left">
+                <button
+                  className={
+                    this.state.strictMode
+                      ? 'strict btn red left'
+                      : 'strict btn black left'
+                  }
+                  onClick={this.handleStrict}
+                />
+                <h6 className="left strictWord">strict</h6>
+                <h3 className="right streak">{this.state.patternStreak - 1}</h3>
+              </div>
+
               {this.state.gameWon && <h2>You WON!!!</h2>}
               {this.state.gameLost && <h2>You lost...</h2>}
             </div>
