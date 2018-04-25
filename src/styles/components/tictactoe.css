@@ -1,0 +1,67 @@
+.main {
+  width: 600px;
+  margin: auto;
+  padding: 10px;
+}
+
+.gameBoard {
+  width: 535px;
+  margin: auto;
+  margin-top: 50px;
+}
+
+.gameBox {
+  background-color: purple;
+  height: 130px;
+  width: 170px;
+  cursor: pointer;
+  margin: 2px 0 2px 0;
+}
+
+.gameBoxCont {
+  padding: 0;
+}
+
+.xoContainer {
+  padding-top: 35px;
+  font-size: 1.75em;
+}
+
+.row {
+  margin: 0;
+  display: inline-block;
+}
+
+.reset {
+  width: 25%;
+}
+
+.playersQtitle {
+  margin-bottom: 20px;
+}
+
+.playerSel {
+  margin: 10px;
+}
+
+.xoBtn {
+  margin: 10px;
+}
+
+.turn {
+  margin: auto;
+  width: 80%;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+.scoreCont {
+  width: 80%;
+}
+
+.score {
+  width: 130px;
+  border-radius: 5px;
+  padding: 1px;
+}
