@@ -3,6 +3,7 @@ import BreakTime from './BreakTime';
 import Countdown from './Countdown';
 import ProgressBar from './ProgressBar';
 import WorkTime from './WorkTime';
+import '../styles/components/pomodoro_clock.css';
 
 class PomodoroClock extends React.Component {
   state = {
@@ -63,7 +64,6 @@ class PomodoroClock extends React.Component {
 
   addWorkTime = () => {
     const { workTime, inSession } = this.state;
-    console.log(workTime);
     if (inSession) {
       this.setState({
         minLeft: workTime + 1,

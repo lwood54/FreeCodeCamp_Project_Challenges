@@ -49,7 +49,7 @@ class Simon extends React.Component {
   };
 
   pressButton = button => {
-    let { patternActive, userPattern, patternStreak } = this.state;
+    let { patternActive, userPattern } = this.state;
     // NOTE userPattern is saved as false when it was empty array
     // so I had to check if it's false and define its first entry,
     // then I could add to the array.
@@ -224,13 +224,7 @@ class Simon extends React.Component {
   };
 
   checkPattern = () => {
-    let {
-      userPattern,
-      originalPattern,
-      patternStreak,
-      strictMode
-    } = this.state;
-    let originalBuildUp = originalPattern.slice(0, patternStreak);
+    let { userPattern, originalPattern, patternStreak } = this.state;
     let lastSpot = userPattern.length - 1;
     let match;
     if (userPattern[lastSpot] === originalPattern[lastSpot]) {

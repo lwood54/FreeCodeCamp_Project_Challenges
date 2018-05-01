@@ -1,0 +1,43 @@
+.brkTimeDisp {
+  display: inline-block;
+  margin: auto;
+}
+
+.workTimeDisp {
+  display: inline-block;
+  margin: auto;
+}
+
+.brkWrkContainer {
+  margin-top: 50px;
+  width: 100%;
+}
+
+.subBtn {
+  margin-right: 20px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  width: 60px;
+  font-size: 1.1em;
+}
+
+.addBtn {
+  margin-left: 20px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  width: 60px;
+  font-size: 1.1em;
+}
+
+.instruct {
+  margin: 0;
+}
+
+.timer {
+  margin: 0;
+}
+
+.progress {
+  height: 10px;
+  border-radius: 5px;
+}
